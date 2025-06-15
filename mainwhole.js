@@ -116,7 +116,6 @@ function playDashSound(player) {
     }
 }
 
-function playYamatoHitSound() { playSound('yamatoHit'); }
 function playUppercutHitSound(weaponType) {
     if (weaponType === 'balrog' || weaponType === 'sdt') {
         playSound('balrogUppercutHit');
@@ -131,6 +130,7 @@ function playDiveKickHitSound(weaponType) {
         playSound('beowulfDiveKickHit');
     }
 }
+function playYamatoHitSound() { playSound('yamatoHit'); }
 function playSpectralSwordHitSound() { playSound('spectralSwordHit'); }
 function playPlayerHurtSound() { playSound('playerHurt'); }
 function playSDTTransformSound() { playSound('sdtTransform'); }
@@ -631,10 +631,10 @@ const DEVIL_SWORD_PROGRESSION = {
   ENHANCED_PHASE_1_SPRITE: "danty-devilsword-enhanced-strike1.png",
   ENHANCED_PHASE_2_SPRITE: "danty-devilsword-enhanced-strike2.png",
   ENHANCED_PHASE_3_SPRITE: "danty-devilsword-enhanced-strike3.png",
-  SPRITE_WIDTH: 120,
-  SPRITE_HEIGHT: 80,
-  ENHANCED_SPRITE_WIDTH: 140, // Bigger for enhanced mode
-  ENHANCED_SPRITE_HEIGHT: 90,
+  SPRITE_WIDTH: 250,
+  SPRITE_HEIGHT: 250,
+  ENHANCED_SPRITE_WIDTH: 250, // Bigger for enhanced mode
+  ENHANCED_SPRITE_HEIGHT: 250,
   SPRITE_DURATION: 20,
   ENHANCED_SPRITE_DURATION: 25, // Longer for enhanced mode
   SPRITE_OFFSET_X: 60,
@@ -4696,14 +4696,6 @@ function draw() {
         ctx.filter = "saturate(0) sepia(1) saturate(5) hue-rotate(315deg) brightness(1.1)";
       }
     }
-    
-// DEBUG: Log current animation state
-if (p.charId === 'vergil' && p.vergilSdtAnimationPhase === 'transforming') {
-  console.log(`Vergil transforming - animState: ${p.animState}, anim found: ${!!anim}`);
-}
-if (p.charId === 'danty' && p.sdtAnimationPhase === 'transforming') {
-  console.log(`Danty transforming - animState: ${p.animState}, anim found: ${!!anim}`);
-}
 
       if (anim && spritesheet && spritesheet.complete && spritesheet.naturalWidth > 0) {
       const scaleX = p.w / anim.w;
@@ -5804,136 +5796,61 @@ p.blockWasFull = p.block >= p.maxBlock - 0.1;
 }
 
 // Character selection
+function resetAllPlayerProperties(p) {
+  // Vergil properties
+  p.judgmentCutCharging = false;
+  p.judgmentCutChargeStart = 0;
+  p.judgmentCutChargeLevel = 0;
+  p.beowulfCharging = false;
+  p.beowulfChargeStart = 0;
+  p.beowulfChargeType = null;
+  p.stormSlashesReady = false;
+  p.stormSlashesActive = false;
+  p.mirageActive = false;
+  p.vergilSdtGauge = 0;
+  p.vergilSdtActive = false;
+  p.vergilSdtCharging = false;
+  
+  // Danty properties
+  p.devilSwordGauge = 0;
+  p.devilSwordUpgraded = false;
+  p.devilSwordActivating = false;
+  p.devilSwordActivationStart = 0;
+  p.devilSwordComboHits = 0;
+  p.devilSwordPhase = 0;
+  p.sdtActive = false;
+  p.sdtCharging = false;
+  p.sdtGauge = 0;
+  p.balrogCharging = false;
+  p.balrogChargeStart = 0;
+  p.balrogChargeType = null;
+  
+  if (p.spectralSword) destroySpectralSword(p);
+}
+
 document.addEventListener("keydown", function(e) {
-  // Initialize audio on first keypress (required for autoplay policy)
   initializeAudio();
   
-   if (e.key === "1") {
-    const p = players[0];
-    p.charId = "vergil";
-    p.name = "Vergil";
-    p.color = "#4a90e2";
-    p.judgementCutCooldown = 0;
-    
-    // RESET ALL VERGIL PROPERTIES! ⚔️⚡
-    p.currentWeapon = VERGIL_WEAPONS.YAMATO;
-    p.judgmentCutCharging = false;
-    p.judgmentCutChargeStart = 0;
-    p.judgmentCutChargeLevel = 0;
-    p.beowulfCharging = false;
-    p.beowulfChargeStart = 0;
-    p.beowulfChargeType = null;
-    p.stormSlashesReady = false;
-    p.stormSlashesActive = false;
-    p.mirageActive = false;
-    
-    // RESET DANTY PROPERTIES TOO!
-    p.devilSwordGauge = 0;
-    p.devilSwordUpgraded = false;
-    p.devilSwordActivating = false;
-    p.sdtActive = false;
-    p.sdtCharging = false;
-    p.balrogCharging = false;
-    if (p.spectralSword) destroySpectralSword(p);
-    
-    console.log("Player 1 is now Vergil! ALL PROPERTIES RESET! Q=Switch Weapon, E=Judgment Cut(Yamato) ⚔️⚡");
-  }
-    if (e.key === "2") {
-    const p = players[0];
-    p.charId = "danty";
-    p.name = "Danty";
-   p.color = "#ef5350"; 
-    p.judgementCutCooldown = 0;
-    
-    // RESET ALL DANTY PROPERTIES! 😈⚔️
-    p.currentWeapon = DANTY_WEAPONS.DEVIL_SWORD;
-    p.devilSwordGauge = 0;
-    p.devilSwordUpgraded = false;
-    p.devilSwordActivating = false;
-    p.devilSwordActivationStart = 0;
-    p.devilSwordComboHits = 0;
-    p.devilSwordPhase = 0;
-    p.sdtActive = false;
-    p.sdtCharging = false;
-    p.sdtGauge = 0;
-    p.balrogCharging = false;
-    p.balrogChargeStart = 0;
-    p.balrogChargeType = null;
-    if (p.spectralSword) destroySpectralSword(p);
-    
-    // RESET VERGIL PROPERTIES TOO!
-    p.judgmentCutCharging = false;
-    p.judgmentCutChargeStart = 0;
-    p.beowulfCharging = false;
-    p.stormSlashesReady = false;
-    p.stormSlashesActive = false;
-    p.mirageActive = false;
-    
-    console.log("Player 1 is now Danty! ALL PROPERTIES RESET! Q=Switch Weapon, E=Devil Trigger 😈⚔️");
-  }
+  const selections = {
+    "1": [0, "vergil", "Vergil", "#4a90e2", VERGIL_WEAPONS.YAMATO],
+    "2": [0, "danty", "Danty", "#ef5350", DANTY_WEAPONS.DEVIL_SWORD],
+    "3": [1, "vergil", "Vergil", "#4a90e2", VERGIL_WEAPONS.YAMATO],
+    "4": [1, "danty", "Danty", "#ef5350", DANTY_WEAPONS.DEVIL_SWORD]
+  };
   
-  if (e.key === "3") {
-    const p = players[1];
-    p.charId = "vergil";
-    p.name = "Vergil";
-    p.color = "#4a90e2";
+  if (selections[e.key]) {
+    const [playerId, charId, name, color, weapon] = selections[e.key];
+    const p = players[playerId];
+    
+    p.charId = charId;
+    p.name = name;
+    p.color = color;
+    p.currentWeapon = weapon;
     p.judgementCutCooldown = 0;
     
-    // RESET ALL VERGIL PROPERTIES FOR PLAYER 2! ⚔️⚡
-    p.currentWeapon = VERGIL_WEAPONS.YAMATO;
-    p.judgmentCutCharging = false;
-    p.judgmentCutChargeStart = 0;
-    p.judgmentCutChargeLevel = 0;
-    p.beowulfCharging = false;
-    p.beowulfChargeStart = 0;
-    p.beowulfChargeType = null;
-    p.stormSlashesReady = false;
-    p.stormSlashesActive = false;
-    p.mirageActive = false;
+    resetAllPlayerProperties(p);
     
-    // RESET DANTY PROPERTIES TOO!
-    p.devilSwordGauge = 0;
-    p.devilSwordUpgraded = false;
-    p.devilSwordActivating = false;
-    p.sdtActive = false;
-    p.sdtCharging = false;
-    p.balrogCharging = false;
-    if (p.spectralSword) destroySpectralSword(p);
-    
-    console.log("Player 2 is now Vergil! ALL PROPERTIES RESET! I=Switch Weapon, P=Judgment Cut(Yamato) ⚔️⚡");
-  }
-    if (e.key === "4") {
-    const p = players[1];
-    p.charId = "danty"; // FIXED: Should be danty, not chicken! 
-    p.name = "Danty";
-   p.color = "#ef5350"; 
-    p.judgementCutCooldown = 0;
-    
-    // RESET ALL DANTY PROPERTIES FOR PLAYER 2! 😈⚔️
-    p.currentWeapon = DANTY_WEAPONS.DEVIL_SWORD;
-    p.devilSwordGauge = 0;
-    p.devilSwordUpgraded = false;
-    p.devilSwordActivating = false;
-    p.devilSwordActivationStart = 0;
-    p.devilSwordComboHits = 0;
-    p.devilSwordPhase = 0;
-    p.sdtActive = false;
-    p.sdtCharging = false;
-    p.sdtGauge = 0;
-    p.balrogCharging = false;
-    p.balrogChargeStart = 0;
-    p.balrogChargeType = null;
-    if (p.spectralSword) destroySpectralSword(p);
-    
-    // RESET VERGIL PROPERTIES TOO!
-    p.judgmentCutCharging = false;
-    p.judgmentCutChargeStart = 0;
-    p.beowulfCharging = false;
-    p.stormSlashesReady = false;
-    p.stormSlashesActive = false;
-    p.mirageActive = false;
-    
-    console.log("Player 2 is now Danty! ALL PROPERTIES RESET! I=Switch Weapon, P=Devil Trigger 😈⚔️");
+    console.log(`Player ${playerId + 1} is now ${name}! ALL PROPERTIES RESET!`);
   }
 });
 // Initialize audio and start game immediately
